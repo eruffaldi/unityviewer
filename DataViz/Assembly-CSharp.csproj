@@ -70,7 +70,7 @@
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="websocket-sharp">
- <HintPath>/Users/eruffaldi/Documents/work/openposestereo/unityviz/DataViz/Assets/Plugins/websocket-sharp.dll</HintPath>
+ <HintPath>/Users/eruffaldi/Documents/work/unitiviewer/DataViz/Assets/Plugins/websocket-sharp.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
