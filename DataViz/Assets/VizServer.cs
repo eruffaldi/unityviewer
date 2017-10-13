@@ -36,16 +36,22 @@ using System.IO;
 [System.Serializable]
 class Object
 {
+	public UInt64 timestamp;
+	public UInt32 frame;
+	public string printorder; // openpose
+	public string id="x"; 
+	public float radius = 0.01f;
+	public Color color; // color
 	//public string id;
 	//public string what;
-	public Vector3 position;
+	public Vector3 []points;
 	//public string color;
 };
 
 [System.Serializable]
 class Command
 {
-	public Object[] objects;
+	public Object[] pointsets;
 };
 
 public class VizServer : MonoBehaviour {
@@ -55,6 +61,9 @@ public class VizServer : MonoBehaviour {
 	Thread receiveThread; 
 	UdpClient client; 
 	#endif
+
+	Dictionary<string, List<GameObject> > entities = new Dictionary<string, List<GameObject>>();
+
 
 	public int port = 8051;
 	public string url = "ws://127.0.0.1:8000";
@@ -76,11 +85,64 @@ public class VizServer : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (lastcommand != null && lastcommand.objects != null) {
-			foreach (Object o in lastcommand.objects) {
-				GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-				sphere.transform.position = o.position;
-				sphere.transform.SetParent (gameObject.transform);
+		// check for new set
+		if (lastcommand != null && lastcommand.pointsets != null) {
+			// for each pointset
+			foreach (Object o in lastcommand.pointsets) {
+
+				// lookup for obejct id
+				var q = GameObject.Find ("points_" + o.id);
+				List<GameObject> li;
+				if (q == null)
+				{
+					q = new GameObject ();
+					q.name = "points_" + o.id;
+					q.transform.SetParent (gameObject.transform);
+					li = new List<GameObject> ();
+					entities [o.id] = li;
+					Debug.Log ("creating object points_"+ o.id);
+				}
+				else
+				{
+					// lookup list
+					li = entities[o.id];
+					Debug.Log ("reusing object id "+ o.id);
+				}
+				Vector3 vs = new Vector3 (o.radius, o.radius, o.radius);
+				bool done = false;
+				IEnumerator<GameObject> e = li.GetEnumerator ();
+				//foreach(GameObject x in li)
+				//	x.renderer.GetComponent<Renderer> ().enabled = false;
+				for(int i = 0; i < o.points.Length; i++)
+				{
+					GameObject sphere = null;
+					if (!done && e.MoveNext ()) {
+						sphere = e.Current;
+					}
+					if (sphere == null) {
+						sphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
+						sphere.transform.SetParent (q.transform);
+						li.Add (sphere);							
+						done = true;
+					}
+					else
+						Debug.Log("reusing sphere ");
+					sphere.GetComponent<Renderer> ().material.color = o.color;
+					sphere.transform.localScale = vs;
+
+					sphere.GetComponent<Renderer> ().enabled = true;
+					sphere.transform.position = o.points[i];
+				}
+				// some object left ... hide it
+
+				if(!done) // this is not working!
+				{
+					while (e.MoveNext ()) {
+						e.Current.GetComponent<Renderer> ().enabled = false;
+					}
+				}
+
+					
 			}
 			lastcommand = null;
 
@@ -88,7 +150,7 @@ public class VizServer : MonoBehaviour {
 	}
 
 	void OnMessage(string x) {
-		Debug.LogError ("received " + x);	
+		Debug.Log ("received " + x);	
 
 		// https://docs.unity3d.com/ScriptReference/JsonUtility.FromJson.html
 		// [System.Serializable]
@@ -111,7 +173,7 @@ public class VizServer : MonoBehaviour {
 			}
 			if (w.error != null)
 			{
-				Debug.LogError ("Error: "+w.error);
+				Debug.Log ("Error: "+w.error);
 				break;
 			}
 			yield return 0;
