@@ -41,7 +41,8 @@ class Object
 	public string printorder; // openpose
 	public string id="x"; 
 	public float radius = 0.01f;
-	public Color color; // color
+	public Color color = new Color(1,0,0); // color
+	public string type;
 	//public string id;
 	//public string what;
 	public Vector3 []points;
@@ -88,8 +89,10 @@ public class VizServer : MonoBehaviour {
 		// check for new set
 		if (lastcommand != null && lastcommand.pointsets != null) {
 			// for each pointset
+			Debug.Log("processing pointsets " + lastcommand.pointsets.Length);
 			foreach (Object o in lastcommand.pointsets) {
-
+				Debug.Log ("processing pointsets " +  o.points.Length);
+			
 				// lookup for obejct id
 				var q = GameObject.Find ("points_" + o.id);
 				List<GameObject> li;
@@ -108,7 +111,8 @@ public class VizServer : MonoBehaviour {
 					li = entities[o.id];
 					Debug.Log ("reusing object id "+ o.id);
 				}
-				Vector3 vs = new Vector3 (o.radius, o.radius, o.radius);
+				float radius = o.radius;
+				Vector3 vs = new Vector3 (radius,radius, radius);
 				bool done = false;
 				IEnumerator<GameObject> e = li.GetEnumerator ();
 				//foreach(GameObject x in li)
@@ -150,11 +154,16 @@ public class VizServer : MonoBehaviour {
 	}
 
 	void OnMessage(string x) {
-		Debug.Log ("received " + x);	
+ 		Debug.Log ("received " + x);	
 
 		// https://docs.unity3d.com/ScriptReference/JsonUtility.FromJson.html
 		// [System.Serializable]
 		lastcommand = JsonUtility.FromJson<Command>(x);
+		if (lastcommand == null || lastcommand.pointsets  == null) {
+			lastcommand = new Command ();
+			lastcommand.pointsets = new Object[1];
+			lastcommand.pointsets [0] = JsonUtility.FromJson<Object> (x);
+		}
 
 
 	}
