@@ -4,7 +4,7 @@ import json
 import argparse
 import numpy as np
 import numpy.random
-
+import time
 def convertpoint(x):
 	return dict(x=x[0],y=x[1],z=x[2])
 def main():
@@ -15,18 +15,19 @@ def main():
 	args = parser.parse_args()
 
 	UDP_IP = "127.0.0.1"
-	UDP_PORT = 8051
-
-	points = np.random.rand(10,3)*4-2
-	what = dict(pointsets=[dict(radius=1,color=dict(g=1.0),points=[convertpoint(points[x,:]) for x in range(0,points.shape[0])],id="ciao")])
-	MESSAGE = json.dumps(what)
-
+	UDP_PORT = 9999
 
 	sock = socket.socket(socket.AF_INET, # Internet
 	                     socket.SOCK_DGRAM) # UDP
-	sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+	while True:
+		points = np.random.rand(10,3)*10-2
+		what = dict(pointsets=[dict(radius=1,color=dict(g=1.0),printorder="openpose",points=[convertpoint(points[x,:]) for x in range(0,points.shape[0])],id="ciao")])
+		MESSAGE = json.dumps(what)
+
+		sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
 
 
+		time.sleep(0.5)
 
 
 if __name__ == '__main__':

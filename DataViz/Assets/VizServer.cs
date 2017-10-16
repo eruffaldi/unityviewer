@@ -145,7 +145,12 @@ public class VizServer : MonoBehaviour {
 						e.Current.GetComponent<Renderer> ().enabled = false;
 					}
 				}
-
+				if (o.printorder == "openpose") {
+					// TODO multiple line renderer
+					//LineRenderer lr = gameObject.GetComponent<LineRenderer> ();
+					//lr.SetPositions (o.points);
+					//lr.positionCount = o.points.Length;
+				}
 					
 			}
 			lastcommand = null;
