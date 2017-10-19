@@ -57,6 +57,26 @@ class Command
 
 public class VizServer : MonoBehaviour {
 
+	public static int[] openposelines = {
+
+		0, 1, -1,
+		1, 2, -1,
+		1, 5, -1,
+		0, 14, -1,
+		0, 15, -1,
+		14, 16, -1,
+		15, 17, -1,
+		2, 3, -1,
+		5, 6, -1,
+		1, 8, -1,
+		1, 11, -1,
+		3, 4, -1,
+		6, 7, -1,
+		8, 9, -1,
+		9, 10, -1,
+		11, 12, -1,
+		12, 13
+	};
 
 	#if !UNITY_WEBGL
 	Thread receiveThread; 
@@ -147,11 +167,16 @@ public class VizServer : MonoBehaviour {
 						e.Current.GetComponent<Renderer> ().enabled = false;
 					}
 				}
-				if (o.printorder == "openpose") {
+				if (true) {//o.printorder == "openpose") {
 					// TODO multiple line renderer
 					LineRenderer lr = gameObject.GetComponent<LineRenderer> ();
-					lr.SetPositions (o.points);
-					lr.positionCount = o.points.Length;
+					Vector3 []pts = new Vector3[openposelines.Length];
+					Vector3 nanpt = new Vector3 (Single.NaN, Single.NaN, Single.NaN);
+					for (int i = 0; i < openposelines.Length; i++) {
+						pts [i] = openposelines [i] == -1 ? nanpt : o.points [i];
+					}
+					lr.positionCount = openposelines.Length;
+					lr.SetPositions (pts);
 				}
 					
 			}
