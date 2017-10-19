@@ -38,7 +38,7 @@ class Object
 {
 	public UInt64 timestamp;
 	public UInt32 frame;
-	public string printorder; // openpose
+	public string pointorder; // openpose
 	public string id="x"; 
 	public float radius = 0.01f;
 	public Color color = new Color(1,0,0); // color
@@ -75,7 +75,7 @@ public class VizServer : MonoBehaviour {
 		8, 9, -1,
 		9, 10, -1,
 		11, 12, -1,
-		12, 13
+		12, 13,-1
 	};
 
 	#if !UNITY_WEBGL
@@ -101,7 +101,8 @@ public class VizServer : MonoBehaviour {
 
 		StartCoroutine (ReceiveDataWSX());
 	}
-
+	GameObject [] lrs;
+	LineRenderer[] llr;
 	Command lastcommand;
 
 	// Update is called once per frame
@@ -167,16 +168,33 @@ public class VizServer : MonoBehaviour {
 						e.Current.GetComponent<Renderer> ().enabled = false;
 					}
 				}
-				if (true) {//o.printorder == "openpose") {
+				if (o.pointorder == "openpose") {
 					// TODO multiple line renderer
-					LineRenderer lr = gameObject.GetComponent<LineRenderer> ();
-					Vector3 []pts = new Vector3[openposelines.Length];
-					Vector3 nanpt = new Vector3 (Single.NaN, Single.NaN, Single.NaN);
-					for (int i = 0; i < openposelines.Length; i++) {
-						pts [i] = openposelines [i] == -1 || o.points[ openposelines[i]].sqrMagnitude == 0 || Single.IsNaN(o.points[ openposelines[i]].x) ? nanpt : o.points [ openposelines[i]];
+					if (llr == null) {
+						llr = new LineRenderer[openposelines.Length/3];
+						lrs = new GameObject[openposelines.Length/3];
+						for (int i = 0; i < openposelines.Length/3; i++) {
+							var qq = new GameObject ();
+							qq.name = "line_" + i;
+							qq.transform.SetParent (gameObject.transform);
+							llr [i] = qq.AddComponent < LineRenderer> ();
+							llr [i].startWidth = 0.01f;
+							llr [i].endWidth = 0.01f;
+
+						}
 					}
-					lr.positionCount = openposelines.Length;
-					lr.SetPositions (pts);
+					Vector3[] npts;
+					for (int i = 0; i < openposelines.Length/3; i++) {
+						npts = new Vector3[2]; // empty
+						npts[0] = o.points[openposelines[i*3]];
+						npts[1] = o.points[openposelines[i*3+1]];
+						if (npts [0].sqrMagnitude == 0 || Single.IsNaN (npts [0].x) || npts [1].sqrMagnitude == 0 || Single.IsNaN (npts [1].y)) {
+							llr [i].positionCount = 0;
+						} else {
+							llr [i].SetPositions (npts);
+							llr [i].positionCount = 2;
+						}
+					}
 				}
 					
 			}
