@@ -151,11 +151,11 @@ public class VizServer : MonoBehaviour {
 					}
 					else
 						Debug.Log("reusing sphere ");
-					sphere.GetComponent<Renderer> ().material.color = o.color;
-					sphere.transform.localScale = vs;
-					sphere.GetComponent<Renderer> ().enabled = true;
 
-					if (Single.IsNaN (o.points [i].x) == false) {
+					if (Single.IsNaN (o.points [i].x) == false || o.points[i].sqrMagnitude == 0) {
+						sphere.GetComponent<Renderer> ().material.color = o.color;
+						sphere.transform.localScale = vs;
+						sphere.GetComponent<Renderer> ().enabled = true;
 						sphere.transform.position = o.points [i];
 					}
 				}
@@ -173,7 +173,7 @@ public class VizServer : MonoBehaviour {
 					Vector3 []pts = new Vector3[openposelines.Length];
 					Vector3 nanpt = new Vector3 (Single.NaN, Single.NaN, Single.NaN);
 					for (int i = 0; i < openposelines.Length; i++) {
-						pts [i] = openposelines [i] == -1 ? nanpt : o.points [i];
+						pts [i] = openposelines [i] == -1 || o.points[ openposelines[i]].sqrMagnitude == 0 || Single.IsNaN(o.points[ openposelines[i]].x) ? nanpt : o.points [ openposelines[i]];
 					}
 					lr.positionCount = openposelines.Length;
 					lr.SetPositions (pts);
