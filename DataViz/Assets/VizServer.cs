@@ -133,9 +133,11 @@ public class VizServer : MonoBehaviour {
 						Debug.Log("reusing sphere ");
 					sphere.GetComponent<Renderer> ().material.color = o.color;
 					sphere.transform.localScale = vs;
-
 					sphere.GetComponent<Renderer> ().enabled = true;
-					sphere.transform.position = o.points[i];
+
+					if (Single.IsNaN (o.points [i].x) == false) {
+						sphere.transform.position = o.points [i];
+					}
 				}
 				// some object left ... hide it
 
@@ -147,9 +149,9 @@ public class VizServer : MonoBehaviour {
 				}
 				if (o.printorder == "openpose") {
 					// TODO multiple line renderer
-					//LineRenderer lr = gameObject.GetComponent<LineRenderer> ();
-					//lr.SetPositions (o.points);
-					//lr.positionCount = o.points.Length;
+					LineRenderer lr = gameObject.GetComponent<LineRenderer> ();
+					lr.SetPositions (o.points);
+					lr.positionCount = o.points.Length;
 				}
 					
 			}

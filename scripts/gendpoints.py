@@ -19,9 +19,17 @@ def main():
 
 	sock = socket.socket(socket.AF_INET, # Internet
 	                     socket.SOCK_DGRAM) # UDP
+	nan = float('nan')
 	while True:
 		points = np.random.rand(10,3)*10-2
-		what = dict(pointsets=[dict(radius=1,color=dict(g=1.0),printorder="openpose",points=[convertpoint(points[x,:]) for x in range(0,points.shape[0])],id="ciao")])
+		points[5,0] = nan
+		points[5,1] = nan
+		points[5,2] = nan
+		points[8,0] = nan
+		points[8,1] = nan
+		points[8,2] = nan
+		pts = [convertpoint(points[x,:]) for x in range(0,points.shape[0])]
+		what = dict(pointsets=[dict(radius=1,color=dict(g=1.0),printorder="openpose",points=pts,id="ciao")])
 		MESSAGE = json.dumps(what)
 
 		sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
