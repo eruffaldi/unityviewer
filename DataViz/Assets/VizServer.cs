@@ -149,16 +149,19 @@ public class VizServer : MonoBehaviour {
 						sphere.transform.SetParent (q.transform);
 						li.Add (sphere);							
 						done = true;
+					} else {
+						Debug.Log ("reusing sphere ");
 					}
-					else
-						Debug.Log("reusing sphere ");
 
-					if (Single.IsNaN (o.points [i].x) == false || o.points[i].sqrMagnitude == 0) {
+					if (Single.IsNaN (o.points [i].x) == false && o.points[i].sqrMagnitude != 0) {
 						sphere.GetComponent<Renderer> ().material.color = o.color;
 						sphere.transform.localScale = vs;
 						sphere.GetComponent<Renderer> ().enabled = true;
 						sphere.transform.position = o.points [i];
 					}
+					else
+						sphere.GetComponent<Renderer> ().enabled = false;
+					
 				}
 				// some object left ... hide it
 
